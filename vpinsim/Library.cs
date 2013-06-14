@@ -1436,6 +1436,31 @@ namespace vpinsim
             fs.Close();
         }
 
+        /// <summary>
+        /// Open the mainfile (.shp file) <b>filename</b>, parse the road information
+        /// Also, initialized the <b>roadDict</b> of the simulator
+        /// </summary>
+        /// <param name="filename">the mainfile .shp file name</param>
+        /// <param name="dict">the roadDict that map road ID to road obj</param>
+        public MainFile(string filename, VpinSim sim)
+        {
+            this.records = new List<MainFileRecord>();
+
+            FileStream fs = new FileStream(filename, FileMode.Open);
+            BinaryReader br = new BinaryReader(fs);
+
+            this.header = Reader.ReadMainFileHeader(br);
+
+            while (br.BaseStream.Position < br.BaseStream.Length)
+            {
+                this.records.Add(Reader.ReadMainFileRecord(br));
+                sim.roadDict.Add(this.records.Count - 1, new Road(this.records.Count - 1));
+            }
+
+            br.Close();
+            fs.Close();
+        }
+
     }
 
     public class MainFileHeader

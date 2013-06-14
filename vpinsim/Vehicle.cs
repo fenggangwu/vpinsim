@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace vpinsim
 {
-    class Vehicle
+    public class Vehicle
     {
         Point pos;
         GPSRecord lastRecord;
@@ -23,7 +23,7 @@ namespace vpinsim
                 this.vpinSim.mf, this.vpinSim.gf, this.vpinSim.af, ref pos);
 
 #if DEBUG
-            Console.WriteLine("Updating Vehicle " + this.lastRecord.ID);
+            Console.WriteLine("Initializing Vehicle " + this.lastRecord.ID);
             Console.WriteLine("using Record " + record.ID);
             Console.WriteLine("-->before" +
                 new Point(lastRecord.Longitude, lastRecord.Latitude) + "\n--->after" + pos + "\n");
@@ -34,14 +34,15 @@ namespace vpinsim
         {
             this.lastRecord = record;
 
+            this.roadIndexOn = Calculator.IndexOfPreferredPolyLine(record,
+                this.vpinSim.mf, this.vpinSim.gf, this.vpinSim.af, ref pos);
+
 #if DEBUG
             Console.WriteLine("Updating Vehicle " + this.lastRecord.ID);
             Console.WriteLine("using Record " + record.ID);
             Console.WriteLine("-->before" +
                 new Point(lastRecord.Longitude, lastRecord.Latitude) + "\n--->after" + pos + "\n");
 #endif
-            this.roadIndexOn = Calculator.IndexOfPreferredPolyLine(record,
-                this.vpinSim.mf, this.vpinSim.gf, this.vpinSim.af, ref pos);
         }
 
         public int GetID()

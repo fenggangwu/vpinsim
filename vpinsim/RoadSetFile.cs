@@ -13,7 +13,7 @@ namespace vpinsim
     /// where vehicles holding information will boradcast it
     /// to neighbors.
     /// </summary>
-    class RoadSetFile
+    public class RoadSetFile
     {
         public HashSet<int> RoadIndexSet = new HashSet<int>();
         private string roadSetFileName;

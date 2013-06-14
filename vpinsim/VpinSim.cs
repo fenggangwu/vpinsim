@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace vpinsim
 {
-    class VpinSim
+    public class VpinSim
     {
         public const double COMM_RANGE = 300;
         public const double M_PER_DEG = 110665.1;
@@ -38,7 +38,7 @@ namespace vpinsim
             this.gpsf = new GPSFile(gpsFileName);
 
             Console.WriteLine("Reading MainFile " + mainFileName);
-            this.mf = new MainFile(mainFileName);
+            this.mf = new MainFile(mainFileName, this);
 
             Console.WriteLine("Reading IndexFile " + indexFileName);
             this.idxf = new IndexFile(indexFileName);
@@ -69,7 +69,7 @@ namespace vpinsim
 
             #endregion
 
-            #region Initialize data stuctures
+            #region Setting initializing vehicle set
 
 
 
@@ -111,6 +111,7 @@ namespace vpinsim
             foreach (int roadIdx in this.rdsf.RoadIndexSet)
             {
                 Road hotRoad = this.roadDict[roadIdx];
+
                 foreach (Vehicle v in hotRoad.vehicleSet)
                 {
                     if (v.carryBlockInfo)

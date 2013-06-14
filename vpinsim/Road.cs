@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace vpinsim
 {
-    class Road
+    public class Road
     {
         int roadIndex;
         public HashSet<Vehicle> vehicleSet;
