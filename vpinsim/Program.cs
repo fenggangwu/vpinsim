@@ -16,9 +16,11 @@ namespace vpinsim
             string gridFileName = ".\\LD.grd";
             string angelFileName = ".\\LD.ngl";
             string roadSetFileName = ".\\roadSetFile.txt";
+            string vehiSetFileName = ".\\vehiSetFile.txt";
             
             VpinSim sim = new VpinSim(gpsFileName, mainFileName,
-                indexFileName, gridFileName, angelFileName, roadSetFileName);
+                indexFileName, gridFileName, angelFileName,
+                roadSetFileName, vehiSetFileName);
             sim.Run();
             sim.GenerateReport();
         }

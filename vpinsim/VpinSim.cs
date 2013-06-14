@@ -10,7 +10,7 @@ namespace vpinsim
 {
     public class VpinSim
     {
-        public const double COMM_RANGE = 300;
+        public const double COMM_RANGE = 10;
         public const double M_PER_DEG = 110665.1;
         //KM_PER_LAT =  2*pi*6371/360 = 111.1949;
         //KM_PER_LONG = 2*pi*6371*cos((31.84316 + 30.712357)/2)/360 = 110.1352;
@@ -21,14 +21,16 @@ namespace vpinsim
         public IndexFile idxf = default(IndexFile);
         public GridFile gf = default(GridFile);
         public AngleFile af = default(AngleFile);
-        public RoadSetFile rdsf = default(RoadSetFile);
+        public RoadSetFile rsf = default(RoadSetFile);
+        public VehiSetFile vsf = default(VehiSetFile);
 
         Dictionary<int, Vehicle> vehiDict = new Dictionary<int, Vehicle>();
         public Dictionary<int, Road> roadDict = new Dictionary<int, Road>();
 
         public VpinSim(string gpsFileName, string mainFileName, 
             string indexFileName, string gridFileName, 
-            string angleFileName, string roadSetFileName)
+            string angleFileName, string roadSetFileName,
+            string vehiInitSetFileName)
         {
             #region Read data files
 
@@ -50,7 +52,10 @@ namespace vpinsim
             this.af = new AngleFile(angleFileName);
 
             Console.WriteLine("Reading RoadSetFile " + roadSetFileName);
-            this.rdsf = new RoadSetFile(roadSetFileName);
+            this.rsf = new RoadSetFile(roadSetFileName);
+
+            Console.WriteLine("Reading VehiSetFile " + vehiInitSetFileName);
+            this.vsf = new VehiSetFile(vehiInitSetFileName);
 
 #if DEBUG
             double Xmin = this.mf.header.Xmin;
@@ -70,8 +75,8 @@ namespace vpinsim
             #endregion
 
             #region Setting initializing vehicle set
-
-
+            
+            // leave it to the creator of individual vehicles
 
             #endregion
         }
@@ -89,6 +94,7 @@ namespace vpinsim
                 }
                 if (record.TimeStamp > lastts)
                 {
+                    Console.WriteLine(lastts + "->" + record.TimeStamp);
                     this.triggerInformationBoradcast();
                     lastts = record.TimeStamp;
                 }
@@ -108,7 +114,7 @@ namespace vpinsim
             HashSet<Vehicle> tempReceiverSet = new HashSet<Vehicle>();
 
             // only perform broadcast on the "hot" roads
-            foreach (int roadIdx in this.rdsf.RoadIndexSet)
+            foreach (int roadIdx in this.rsf.RoadIndexSet)
             {
                 Road hotRoad = this.roadDict[roadIdx];
 

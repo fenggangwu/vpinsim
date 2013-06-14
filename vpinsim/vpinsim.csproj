@@ -47,6 +47,7 @@
     <Compile Include="Road.cs" />
     <Compile Include="RoadSetFile.cs" />
     <Compile Include="Vehicle.cs" />
+    <Compile Include="vehiSetFile.cs" />
     <Compile Include="VpinSim.cs" />
   </ItemGroup>
   <ItemGroup>

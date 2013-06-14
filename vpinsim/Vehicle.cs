@@ -22,8 +22,13 @@ namespace vpinsim
             this.roadIndexOn = Calculator.IndexOfPreferredPolyLine(record,
                 this.vpinSim.mf, this.vpinSim.gf, this.vpinSim.af, ref pos);
 
+            if (this.vpinSim.vsf.VehiIndexSet.Contains(this.GetID()))
+            {
+                this.carryBlockInfo = true;
+            }
+
 #if DEBUG
-            Console.WriteLine("Initializing Vehicle " + this.lastRecord.ID);
+            Console.WriteLine("Updating Vehicle " + this.lastRecord.ID);
             Console.WriteLine("using Record " + record.ID);
             Console.WriteLine("-->before" +
                 new Point(lastRecord.Longitude, lastRecord.Latitude) + "\n--->after" + pos + "\n");
@@ -34,15 +39,14 @@ namespace vpinsim
         {
             this.lastRecord = record;
 
-            this.roadIndexOn = Calculator.IndexOfPreferredPolyLine(record,
-                this.vpinSim.mf, this.vpinSim.gf, this.vpinSim.af, ref pos);
-
 #if DEBUG
             Console.WriteLine("Updating Vehicle " + this.lastRecord.ID);
             Console.WriteLine("using Record " + record.ID);
             Console.WriteLine("-->before" +
                 new Point(lastRecord.Longitude, lastRecord.Latitude) + "\n--->after" + pos + "\n");
 #endif
+            this.roadIndexOn = Calculator.IndexOfPreferredPolyLine(record,
+                this.vpinSim.mf, this.vpinSim.gf, this.vpinSim.af, ref pos);
         }
 
         public int GetID()
@@ -84,9 +88,28 @@ namespace vpinsim
                         // for all the vehicles on this road
                         foreach (Vehicle v in aRoad.vehicleSet)
                         {
+                            if (v.GetID() == this.GetID())
+                            {
+                                continue;
+                            }
                             if (Calculator.IsPointInCircle(v.pos, this.pos, r))
                             {
+                                if (nbrList.Contains(v))
+                                {
+                                    continue;
+                                }
                                 nbrList.Add(v);
+#if DEBUG
+                                //Console.Write("(" + x + "," + y + "," + i + 
+                                //    ")" + "v" + v.GetID() + " " + v.pos + " " + 
+                                //    Calculator.PointToPoint(this.pos, v.pos) * VpinSim.M_PER_DEG + 
+                                //    "m\n");
+                                Console.Write("v" + v.GetID() + " " + 
+                                    new Point(v.lastRecord.Longitude, v.lastRecord.Latitude) + 
+                                    "->" + v.pos + " " +
+                                    Calculator.PointToPoint(this.pos, v.pos) * VpinSim.M_PER_DEG +
+                                    "m\n");
+#endif
                             }
                         }
                     }
