@@ -1225,7 +1225,7 @@ namespace vpinsim
         /// <param name="p1">点。</param>
         /// <param name="p2">点。</param>
         /// <returns>是否。</returns>
-        private static bool IsPointInRectangle(Point p, Point p1, Point p2)
+        public static bool IsPointInRectangle(Point p, Point p1, Point p2)
         {
             return (p1.X - p.X) * (p.X - p2.X) >= 0 && (p1.Y - p.Y) * (p.Y - p2.Y) >= 0;
         }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace vpinsim
 {
-    public class Vehicle
+    public class Vehicle// : IComparable<Vehicle>
     {
         Point pos;
         GPSRecord lastRecord;
@@ -59,7 +59,7 @@ namespace vpinsim
             return this.roadIndexOn;
         }
 
-        public List<Vehicle> GetNeighbors(double r)
+        public HashSet<Vehicle> GetNeighbors(double r)
         {
             #region Initialization
             double Xmin = this.vpinSim.mf.header.Xmin;
@@ -71,11 +71,13 @@ namespace vpinsim
             int x0 = (int)((this.pos.X - Xmin) / dx);
             int y0 = (int)((this.pos.Y - Ymin) / dy);
 
-            List<Vehicle> nbrList = new List<Vehicle>();
+            HashSet<Vehicle> nbrSet = new HashSet<Vehicle>();
             #endregion
 
             #region Search all vehicles in neighboring grid
-            // find all the roads in neighboring grid
+            // find all the roads in grid blocks in vinicity
+            int margin = (int)Math.Ceiling(r/Math.Min(dx, dy));
+            Console.WriteLine("margin = " + margin);
             for (int x = x0 - 1; x <= x0 + 1; x++)
             {
                 for (int y = y0 - 1; y <= y0 + 1; y++)
@@ -92,23 +94,26 @@ namespace vpinsim
                             {
                                 continue;
                             }
-                            if (Calculator.IsPointInCircle(v.pos, this.pos, r))
+                            if (Calculator.IsPointInCircle(v.pos, 
+                                this.pos, r))
                             {
-                                if (nbrList.Contains(v))
-                                {
-                                    continue;
-                                }
-                                nbrList.Add(v);
+                                //if (nbrList.Contains(v))
+                                //{
+                                //    continue;
+                                //}
+                                nbrSet.Add(v);
 #if DEBUG
-                                //Console.Write("(" + x + "," + y + "," + i + 
-                                //    ")" + "v" + v.GetID() + " " + v.pos + " " + 
-                                //    Calculator.PointToPoint(this.pos, v.pos) * VpinSim.M_PER_DEG + 
+                                //Console.Write("(" + x + "," + y + "," + i +
+                                //    ")" + "v" + v.GetID() + " " + v.pos + " " +
+                                //    Calculator.PointToPoint(this.pos, v.pos) * VpinSim.M_PER_DEG +
                                 //    "m\n");
-                                Console.Write("v" + v.GetID() + " " + 
-                                    new Point(v.lastRecord.Longitude, v.lastRecord.Latitude) + 
-                                    "->" + v.pos + " " +
-                                    Calculator.PointToPoint(this.pos, v.pos) * VpinSim.M_PER_DEG +
-                                    "m\n");
+
+
+                                //Console.Write("v" + v.GetID() + " " + 
+                                //    new Point(v.lastRecord.Longitude, v.lastRecord.Latitude) + 
+                                //    "->" + v.pos + " " +
+                                //    Calculator.PointToPoint(this.pos, v.pos) * VpinSim.M_PER_DEG +
+                                //    "m\n");
 #endif
                             }
                         }
@@ -118,11 +123,74 @@ namespace vpinsim
             #endregion
 
 #if DEBUG
-            Console.WriteLine("v"+ this.GetID()+", No. Nbr:"+ nbrList.Count);
+            Console.WriteLine("v"+ this.GetID()+", No. Nbr:"+ nbrSet.Count);
             throw new Exception();
 #endif
 
-            return nbrList;
+            return nbrSet;
         }
+
+        #region override equity related method. two vehi equal iff. same id
+        //public int CompareTo(object obj)
+        //{
+        //    if (obj == null) return 1;
+
+        //    Vehicle otherVehicle = obj as Vehicle;
+        //    if (otherVehicle != null)
+        //        return this.GetID().CompareTo(otherVehicle.GetID());
+        //    else
+        //        throw new ArgumentException("Object is not a Vehicle");
+        //}
+
+        public bool Equals(Vehicle otherVehicle)
+        {
+            if (ReferenceEquals(null, otherVehicle))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, otherVehicle))
+            {
+                return true;
+            }
+
+            return Equals(otherVehicle.GetID(), this.GetID());
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            if (obj.GetType() != typeof(Vehicle))
+            {
+                return false;
+            }
+
+            return Equals((Vehicle)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return this.GetID();
+        }
+
+        public static bool operator ==(Vehicle left, Vehicle right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(Vehicle left, Vehicle right)
+        {
+            return !Equals(left, right);
+        }
+        #endregion
     }
 }

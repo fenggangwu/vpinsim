@@ -10,12 +10,16 @@ namespace vpinsim
 {
     public class VpinSim
     {
-        public const double COMM_RANGE = 10;
+        #region attributes and fields
+        #region constants
+        public const double COMM_RANGE = 300;
         public const double M_PER_DEG = 110665.1;
         //KM_PER_LAT =  2*pi*6371/360 = 111.1949;
         //KM_PER_LONG = 2*pi*6371*cos((31.84316 + 30.712357)/2)/360 = 110.1352;
         //KM_PER_DEG=(KM_PER_LAT + KM_PER_LONG)/2 = 110.6651;
+        #endregion
 
+        #region file readers
         public GPSFile gpsf = default(GPSFile);
         public MainFile mf = default(MainFile);
         public IndexFile idxf = default(IndexFile);
@@ -23,17 +27,48 @@ namespace vpinsim
         public AngleFile af = default(AngleFile);
         public RoadSetFile rsf = default(RoadSetFile);
         public VehiSetFile vsf = default(VehiSetFile);
+        #endregion
 
+        #region data stuctures related to roads and vehicles
         Dictionary<int, Vehicle> vehiDict = new Dictionary<int, Vehicle>();
         public Dictionary<int, Road> roadDict = new Dictionary<int, Road>();
 
+        /// <summary>
+        /// Set of vehicle indices that is maintaining the information in
+        /// the observed block
+        /// </summary>
+        HashSet<Vehicle> vehiCoveredSet = new HashSet<Vehicle>();
+
+        /// <summary>
+        /// Set of vehicle indices that is currently in the observed block
+        /// </summary>
+        HashSet<Vehicle> vehiInBlkSet = new HashSet<Vehicle>();
+
+        /// <summary>
+        /// Accumulated list of vehicles that is successfully covered
+        /// by our protocol, i.e., vehicles that received the information
+        /// before leaving the block.
+        /// The vehicle will have two instance if it has enterend the 
+        /// block several times and been successfully informed twice.
+        /// </summary>
+        List<Vehicle> vehiAccumSuccessCoveredList = new List<Vehicle>();
+
+        /// <summary>
+        /// Accumulated list of vehicle that has entered the observed
+        /// block. The vehicle will have two instance in the list
+        /// if it has entered the block twice.
+        /// </summary>
+        List<Vehicle> vehiAccumPassBlkList = new List<Vehicle>();
+        #endregion
+        #endregion
+
+        #region Constructor
         public VpinSim(string gpsFileName, string mainFileName, 
             string indexFileName, string gridFileName, 
             string angleFileName, string roadSetFileName,
             string vehiInitSetFileName)
         {
             #region Read data files
-
             Console.WriteLine("Creator of VpinSim Called");
 
             Console.WriteLine("Reading GPSFile " + gpsFileName);
@@ -69,18 +104,18 @@ namespace vpinsim
                 Xmax + "," + Ymin + "," + Ymax);
             Console.WriteLine("XGridNum, YGridNum=" +
                 this.gf.XGridNum + "," + this.gf.YGridNum);
-            Console.WriteLine("dx,dy=" + dx + "," + dy);
+            Console.WriteLine("(dx,dy) = " + dx + "," + dy);
+            Console.WriteLine("(dx,dy) in meter = " + dx * M_PER_DEG + "," +
+                dy * M_PER_DEG);
 #endif
-
             #endregion
 
             #region Setting initializing vehicle set
-            
             // leave it to the creator of individual vehicles
-
             #endregion
-        }
 
+        }
+        #endregion
 
         #region run simulator
         public bool Run()
@@ -104,6 +139,7 @@ namespace vpinsim
             return false;
         }
 
+        #region tool functions
         /// <summary>
         /// At each time slot, vehicles will try to communicate with each
         /// other. Once all the position is updated by the record within
@@ -195,6 +231,7 @@ namespace vpinsim
             currRoad.AddtoVehicleSet(vehicle);
             #endregion
         }
+        #endregion
 
         #endregion
 

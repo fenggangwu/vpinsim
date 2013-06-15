@@ -7,6 +7,10 @@ using System.IO;
 
 namespace vpinsim
 {
+    /// <summary>
+    /// representing a .vsf file, and the data read from it
+    /// It will be the set of information initializing vehicles.
+    /// </summary>
     public class VehiSetFile
     {
         public HashSet<int> VehiIndexSet = new HashSet<int>();
