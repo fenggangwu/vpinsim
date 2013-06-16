@@ -1,4 +1,4 @@
-﻿#define DEBUG
+﻿//#define DEBUG
 
 using System;
 using System.Collections.Generic;
@@ -37,33 +37,10 @@ namespace vpinsim
         Dictionary<int, Vehicle> vehiDict = new Dictionary<int, Vehicle>();
         public Dictionary<int, Road> roadDict = new Dictionary<int, Road>();
 
-        /// <summary>
-        /// Set of vehicle indices that is maintaining the information in
-        /// the observed block
-        /// </summary>
-        public HashSet<Vehicle> vehiCoveredSet = new HashSet<Vehicle>();
 
-        /// <summary>
-        /// Set of vehicle indices that is currently in the observed block
-        /// </summary>
-        HashSet<Vehicle> vehiInBlkSet = new HashSet<Vehicle>();
-
-        /// <summary>
-        /// Accumulated list of vehicles that is successfully covered
-        /// by our protocol, i.e., vehicles that received the information
-        /// before leaving the block.
-        /// The vehicle will have two instance if it has enterend the 
-        /// block several times and been successfully informed twice.
-        /// </summary>
-        public List<Vehicle> vehiAccumSuccessCoveredList = new List<Vehicle>();
-
-        /// <summary>
-        /// Accumulated list of vehicle that has entered the observed
-        /// block. The vehicle will have two instance in the list
-        /// if it has entered the block twice.
-        /// </summary>
-        List<Vehicle> vehiAccumPassBlkList = new List<Vehicle>();
         #endregion
+
+        public Reporter simReporter = default(Reporter);
         #endregion
 
         #region Constructor
@@ -105,7 +82,8 @@ namespace vpinsim
             double dx = (Xmax - Xmin) / this.gf.XGridNum;
             double dy = (Ymax - Ymin) / this.gf.YGridNum;
 
-            Point center = new Point((Xmin + Xmax)/2, (Ymin + Ymax)/2);
+            //Point center = new Point((Xmin + Xmax)/2, (Ymin + Ymax)/2);
+            Point center = new Point(121.423485652362, 31.2342309399148);
             this.block = new Block(center, BLOCK_SIZE / M_PER_DEG);
 #if DEBUG
             Console.WriteLine("Xmin, Xmax, Ymin, Ymax=" + Xmin + "," +
@@ -119,6 +97,8 @@ namespace vpinsim
 
 
             #endregion
+
+            this.simReporter = new Reporter(this.block.Xmin.ToString() + ","                + this.block.Ymin.ToString() + ".csv");
         }
         #endregion
 
@@ -136,6 +116,7 @@ namespace vpinsim
                 {
                     Console.WriteLine(lastts + "->" + record.TimeStamp);
                     this.triggerInformationBoradcast();
+                    this.simReporter.InsertReportTuple();
                     lastts = record.TimeStamp;
                 }
 
@@ -184,8 +165,8 @@ namespace vpinsim
                 if (v.inBlock)
                 {
                     v.carryBlockInfo = true;
-                    this.vehiCoveredSet.Add(v);
-                    this.vehiAccumSuccessCoveredList.Add(v);
+                    this.simReporter.vehiCoveredSet.Add(v);
+                    this.simReporter.vehiAccumSuccessCoveredList.Add(v);
                 }
 
             }
@@ -254,8 +235,8 @@ namespace vpinsim
                 if (!vehicle.inBlock)
                 {
                     vehicle.inBlock = true;
-                    this.vehiInBlkSet.Add(vehicle);
-                    this.vehiAccumPassBlkList.Add(vehicle);
+                    this.simReporter.vehiInBlkSet.Add(vehicle);
+                    this.simReporter.vehiAccumPassBlkList.Add(vehicle);
                 }
             }
             else
@@ -264,13 +245,13 @@ namespace vpinsim
                 if (vehicle.inBlock)
                 {
                     vehicle.inBlock = false;
-                    this.vehiInBlkSet.Remove(vehicle);
+                    this.simReporter.vehiInBlkSet.Remove(vehicle);
 
                     // leaving the block, droping the message
                     if (vehicle.carryBlockInfo)
                     {
                         vehicle.carryBlockInfo = false;
-                        this.vehiCoveredSet.Remove(vehicle);
+                        this.simReporter.vehiCoveredSet.Remove(vehicle);
                     }
                 }
             }
@@ -283,8 +264,8 @@ namespace vpinsim
         #region write to reporting files
         internal void GenerateReport()
         {
-            Console.WriteLine("Generating Report..."); 
-            throw new NotImplementedException();
+            Console.WriteLine("Generating Report...");
+            this.simReporter.GenerateReport();
         }
         #endregion
 

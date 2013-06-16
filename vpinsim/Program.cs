@@ -10,6 +10,7 @@ namespace vpinsim
     {
         static void Main(string[] args)
         {
+            DateTime simStart = DateTime.Now;
             string gpsFileName = ".\\WNL_CSL.txt";
             string mainFileName = ".\\LD.shp";
             string indexFileName = ".\\LD.shx";
@@ -23,6 +24,9 @@ namespace vpinsim
                 roadSetFileName, vehiSetFileName);
             sim.Run();
             sim.GenerateReport();
+            DateTime simFinish = DateTime.Now;
+            Console.WriteLine("Time taken: " + 
+                (simFinish-simStart).ToString());
         }
 
     }

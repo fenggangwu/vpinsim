@@ -29,8 +29,8 @@ namespace vpinsim
             if (this.vpinSim.vsf.VehiIndexSet.Contains(this.GetID()))
             {
                 this.carryBlockInfo = true;
-                this.vpinSim.vehiCoveredSet.Add(this);
-                this.vpinSim.vehiAccumSuccessCoveredList.Add(this);
+                this.vpinSim.simReporter.vehiCoveredSet.Add(this);
+                this.vpinSim.simReporter.vehiAccumSuccessCoveredList.Add(this);
             }
 
 #if DEBUG
@@ -83,7 +83,7 @@ namespace vpinsim
             #region Search all vehicles in neighboring grid
             // find all the roads in grid blocks in vinicity
             int margin = (int)Math.Ceiling(r/Math.Min(dx, dy));
-            Console.WriteLine("margin = " + margin);
+            //Console.WriteLine("margin = " + margin);
             for (int x = x0 - 1; x <= x0 + 1; x++)
             {
                 for (int y = y0 - 1; y <= y0 + 1; y++)
@@ -129,8 +129,7 @@ namespace vpinsim
             #endregion
 
 #if DEBUG
-            Console.WriteLine("v"+ this.GetID()+", No. Nbr:"+ nbrSet.Count);
-            throw new Exception();
+            //Console.WriteLine("v"+ this.GetID()+", No. Nbr:"+ nbrSet.Count);
 #endif
 
             return nbrSet;
