@@ -9,10 +9,11 @@ namespace vpinsim
 {
     public class Vehicle// : IComparable<Vehicle>
     {
-        Point pos;
+        public Point pos;
         GPSRecord lastRecord;
         int roadIndexOn;
         VpinSim vpinSim;
+        public bool inBlock = default(bool); // whether in the observed block
         public bool carryBlockInfo = default(bool);
 
         public Vehicle(GPSRecord record, VpinSim sim)
@@ -22,9 +23,14 @@ namespace vpinsim
             this.roadIndexOn = Calculator.IndexOfPreferredPolyLine(record,
                 this.vpinSim.mf, this.vpinSim.gf, this.vpinSim.af, ref pos);
 
+            // Setting up for initial information vehicle set. 
+            // This code should be in the constructor of VpinSim Class.
+            // It is for convenience to implement here.
             if (this.vpinSim.vsf.VehiIndexSet.Contains(this.GetID()))
             {
                 this.carryBlockInfo = true;
+                this.vpinSim.vehiCoveredSet.Add(this);
+                this.vpinSim.vehiAccumSuccessCoveredList.Add(this);
             }
 
 #if DEBUG

@@ -18,7 +18,6 @@ namespace vpinsim
         
         public VehiSetFile(string vsfnm)
         {
-            // TODO: Complete member initialization
             this.vehiSetFileName = vsfnm;
             FileStream fs = new FileStream(this.vehiSetFileName, 
                 FileMode.Open);

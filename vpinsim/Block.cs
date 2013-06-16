@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace vpinsim
 {
+    /// <summary>
+    /// the observed block. there would be a piece of message for
+    /// this block to be maintained by all the vehicles in this block
+    /// </summary>
     public class Block
     {
         public double Xmin;
@@ -42,12 +46,18 @@ namespace vpinsim
             this.Ymax = Math.Max(A.Y, B.Y);
         }
 
-        public Block(Point lowerLeft, double length)
+        /// <summary>
+        /// Construct the block by the center and the edge length. 
+        /// In degree.
+        /// </summary>
+        /// <param name="center"></param>
+        /// <param name="length"></param>
+        public Block(Point center, double length)
         {
-            this.Xmin = lowerLeft.X;
-            this.Xmax = lowerLeft.X + length;
-            this.Ymin = lowerLeft.Y;
-            this.Ymax = lowerLeft.Y + length;
+            this.Xmin = center.X - length / 2;
+            this.Xmax = center.X + length / 2;
+            this.Ymin = center.Y - length / 2;
+            this.Ymax = center.Y + length / 2;
         }
 
         public bool ContainsPoint(Point p)
