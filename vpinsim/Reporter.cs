@@ -11,6 +11,7 @@ namespace vpinsim
     {
         string reportFileName = default(string);
         private string reportMsg = "";
+        private VpinSim sim = default(VpinSim);
 
         #region statistical dictionaries
         /// <summary>
@@ -41,10 +42,10 @@ namespace vpinsim
         public List<Vehicle> vehiAccumPassBlkList = new List<Vehicle>();
         #endregion
 
-        public Reporter(string nm)
+        public Reporter(string nm, VpinSim sim)
         {
             this.reportFileName = nm;
-            
+            this.sim = sim;
         }
 
         internal void InsertReportTuple()
@@ -53,7 +54,8 @@ namespace vpinsim
                 vehiCoveredSet.Count.ToString() + "," +
                 vehiInBlkSet.Count.ToString() + "," +
                 vehiAccumSuccessCoveredList.Count.ToString() + "," +
-                vehiAccumPassBlkList.Count.ToString() + "\n";
+                vehiAccumPassBlkList.Count.ToString() + "," + 
+                this.sim.vehiDict.Count.ToString() + "\n";
         }
 
         public void GenerateReport()

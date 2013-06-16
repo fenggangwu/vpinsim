@@ -14,7 +14,7 @@ namespace vpinsim
         #region constants
         public const double COMM_RANGE = 300; //meter
         public const double M_PER_DEG = 110665.1;//meter
-        public const double BLOCK_SIZE = 5000;//meter
+        public const double BLOCK_SIZE = 500;//meter
         //KM_PER_LAT =  2*pi*6371/360 = 111.1949;
         //KM_PER_LONG = 2*pi*6371*cos((31.84316 + 30.712357)/2)/360 = 110.1352;
         //KM_PER_DEG=(KM_PER_LAT + KM_PER_LONG)/2 = 110.6651;
@@ -32,9 +32,9 @@ namespace vpinsim
 
         #region data stuctures related to roads and vehicles
 
-        Block block = default(Block);
+        public Block block = default(Block);
 
-        Dictionary<int, Vehicle> vehiDict = new Dictionary<int, Vehicle>();
+        public Dictionary<int, Vehicle> vehiDict = new Dictionary<int, Vehicle>();
         public Dictionary<int, Road> roadDict = new Dictionary<int, Road>();
 
 
@@ -98,7 +98,9 @@ namespace vpinsim
 
             #endregion
 
-            this.simReporter = new Reporter(this.block.Xmin.ToString() + ","                + this.block.Ymin.ToString() + ".csv");
+            this.simReporter = new Reporter(
+                this.block.Xmin.ToString() + "," +
+                this.block.Ymin.ToString() + ".csv", this);
         }
         #endregion
 
@@ -146,7 +148,8 @@ namespace vpinsim
                     if (v.carryBlockInfo)
                     {
                         //broadcast the information
-                        foreach (Vehicle nbr in v.GetNeighbors(COMM_RANGE / M_PER_DEG))
+                        foreach (Vehicle nbr in v.GetNeighbors(
+                            COMM_RANGE / M_PER_DEG))
                         {
                             // for those who newly get the message
                             if (!nbr.carryBlockInfo)
@@ -228,34 +231,6 @@ namespace vpinsim
             currRoad.AddtoVehicleSet(vehicle);
             #endregion
 
-            #region update vehicle dictionaries and block related info
-            if (this.block.ContainsPoint(vehicle.pos))
-            {
-                // entering the block: now in block but last time not
-                if (!vehicle.inBlock)
-                {
-                    vehicle.inBlock = true;
-                    this.simReporter.vehiInBlkSet.Add(vehicle);
-                    this.simReporter.vehiAccumPassBlkList.Add(vehicle);
-                }
-            }
-            else
-            {
-                // leaving the block: now out of block but last time in
-                if (vehicle.inBlock)
-                {
-                    vehicle.inBlock = false;
-                    this.simReporter.vehiInBlkSet.Remove(vehicle);
-
-                    // leaving the block, droping the message
-                    if (vehicle.carryBlockInfo)
-                    {
-                        vehicle.carryBlockInfo = false;
-                        this.simReporter.vehiCoveredSet.Remove(vehicle);
-                    }
-                }
-            }
-            #endregion
         }
         #endregion
 

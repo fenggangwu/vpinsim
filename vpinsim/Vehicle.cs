@@ -23,15 +23,25 @@ namespace vpinsim
             this.roadIndexOn = Calculator.IndexOfPreferredPolyLine(record,
                 this.vpinSim.mf, this.vpinSim.gf, this.vpinSim.af, ref pos);
 
+            #region update vehicle dictionaries and block related info
+            if (this.vpinSim.block.ContainsPoint(this.pos))
+            {
+                this.inBlock = true;
+                this.vpinSim.simReporter.vehiInBlkSet.Add(this);
+                this.vpinSim.simReporter.vehiAccumPassBlkList.Add(this);
+            }
+            
             // Setting up for initial information vehicle set. 
             // This code should be in the constructor of VpinSim Class.
             // It is for convenience to implement here.
-            if (this.vpinSim.vsf.VehiIndexSet.Contains(this.GetID()))
+            if (this.vpinSim.vsf.VehiIndexSet.Contains(this.GetID()) &&
+                this.inBlock)
             {
                 this.carryBlockInfo = true;
                 this.vpinSim.simReporter.vehiCoveredSet.Add(this);
                 this.vpinSim.simReporter.vehiAccumSuccessCoveredList.Add(this);
             }
+            #endregion
 
 #if DEBUG
             Console.WriteLine("Updating Vehicle " + this.lastRecord.ID);
@@ -53,6 +63,35 @@ namespace vpinsim
 #endif
             this.roadIndexOn = Calculator.IndexOfPreferredPolyLine(record,
                 this.vpinSim.mf, this.vpinSim.gf, this.vpinSim.af, ref pos);
+
+            #region update vehicle dictionaries and block related info
+            if (this.vpinSim.block.ContainsPoint(this.pos))
+            {
+                // entering the block: now in block but last time not
+                if (!this.inBlock)
+                {
+                   this.inBlock = true;
+                   this.vpinSim.simReporter.vehiInBlkSet.Add(this);
+                   this.vpinSim.simReporter.vehiAccumPassBlkList.Add(this);
+                }
+            }
+            else
+            { 
+                // leaving the block: now out of block but last time in
+                if (this.inBlock)
+                {
+                    this.inBlock = false;
+                    this.vpinSim.simReporter.vehiInBlkSet.Remove(this);
+
+                    // leaving the block, droping the message
+                    if (this.carryBlockInfo)
+                    {
+                        this.carryBlockInfo = false;
+                        this.vpinSim.simReporter.vehiCoveredSet.Remove(this);
+                    }
+                }
+            }
+            #endregion
         }
 
         public int GetID()
